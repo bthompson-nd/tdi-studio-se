@@ -20,6 +20,8 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.fieldassist.TextControlCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Color;
@@ -65,7 +67,7 @@ public class TextController extends AbstractElementPropertySectionController {
      * 
      * @param dtp
      */
-    public TextController(IDynamicProperty dp) {
+    public TextController(final IDynamicProperty dp) {
         super(dp);
     }
 
@@ -84,18 +86,18 @@ public class TextController extends AbstractElementPropertySectionController {
 
         final DecoratedField dField = new DecoratedField(subComposite, SWT.BORDER, new SelectAllTextControlCreator());
         if (param.isRequired()) {
-            FieldDecoration decoration = FieldDecorationRegistry.getDefault().getFieldDecoration(
+            final FieldDecoration decoration = FieldDecorationRegistry.getDefault().getFieldDecoration(
                     FieldDecorationRegistry.DEC_REQUIRED);
             dField.addFieldDecoration(decoration, SWT.RIGHT | SWT.TOP, false);
         }
         if (canAddRepositoryDecoration(param)) {
-            FieldDecoration decoration = FieldDecorationRegistry.getDefault().getFieldDecoration(
+            final FieldDecoration decoration = FieldDecorationRegistry.getDefault().getFieldDecoration(
                     FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
             decoration.setDescription(Messages.getString("TextController.decoration.description")); //$NON-NLS-1$
             dField.addFieldDecoration(decoration, SWT.RIGHT | SWT.BOTTOM, false);
         }
-        Control cLayout = dField.getLayoutControl();
-        Text labelText = (Text) dField.getControl();
+        final Control cLayout = dField.getLayoutControl();
+        final Text labelText = (Text) dField.getControl();
 
         labelText.setData(PARAMETER_NAME, param.getName());
         editionControlHelper.register(param.getName(), labelText);
@@ -106,6 +108,7 @@ public class TextController extends AbstractElementPropertySectionController {
         }
         if (IAdvancedElementParameter.class.isInstance(param)) {
             labelText.setMessage(IAdvancedElementParameter.class.cast(param).getMessage());
+            labelText.addFocusListener(IAdvancedElementParameter.class.cast(param).getFocusListener());
         }
         if (!isReadOnly()) {
             if (param.isRepositoryValueUsed()
@@ -117,19 +120,19 @@ public class TextController extends AbstractElementPropertySectionController {
                 labelText.addModifyListener(new ModifyListener() {
 
                     @Override
-                    public void modifyText(ModifyEvent e) {
+                    public void modifyText(final ModifyEvent e) {
                         checkTextError(param, labelText, labelText.getText());
                     }
                 });
             }
-            boolean editable = !param.isReadOnly() && (elem instanceof FakeElement || !param.isRepositoryValueUsed());
+            final boolean editable = !param.isReadOnly() && (elem instanceof FakeElement || !param.isRepositoryValueUsed());
             labelText.setEditable(editable);
         } else {
             labelText.setEditable(false);
         }
         addDragAndDropTarget(labelText);
 
-        CLabel labelLabel = getWidgetFactory().createCLabel(subComposite, param.getDisplayName());
+        final CLabel labelLabel = getWidgetFactory().createCLabel(subComposite, param.getDisplayName());
         data = new FormData();
         if (lastControl != null) {
             data.left = new FormAttachment(lastControl, 0);
@@ -141,8 +144,8 @@ public class TextController extends AbstractElementPropertySectionController {
         // *********************
         data = new FormData();
         int currentLabelWidth = STANDARD_LABEL_WIDTH;
-        GC gc = new GC(labelLabel);
-        Point labelSize = gc.stringExtent(param.getDisplayName());
+        final GC gc = new GC(labelLabel);
+        final Point labelSize = gc.stringExtent(param.getDisplayName());
         gc.dispose();
         if ((labelSize.x + (ITabbedPropertyConstants.HSPACE * 2)) > currentLabelWidth) {
             currentLabelWidth = labelSize.x + (ITabbedPropertyConstants.HSPACE * 2);
@@ -165,7 +168,7 @@ public class TextController extends AbstractElementPropertySectionController {
 
         hashCurControls.put(param.getName(), labelText);
 
-        Point initialSize = cLayout.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        final Point initialSize = cLayout.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         // curRowSize = initialSize.y + ITabbedPropertyConstants.VSPACE;
         dynamicProperty.setCurRowSize(initialSize.y + ITabbedPropertyConstants.VSPACE);
 
@@ -201,10 +204,10 @@ public class TextController extends AbstractElementPropertySectionController {
      * (org.eclipse.swt.widgets.Composite, org.talend.core.model.process.IElementParameter)
      */
     @Override
-    public int estimateRowSize(Composite subComposite, IElementParameter param) {
+    public int estimateRowSize(final Composite subComposite, final IElementParameter param) {
         if (!estimateInitialized) {
             final DecoratedField dField = new DecoratedField(subComposite, SWT.BORDER, new TextControlCreator());
-            Point initialSize = dField.getLayoutControl().computeSize(SWT.DEFAULT, SWT.DEFAULT);
+            final Point initialSize = dField.getLayoutControl().computeSize(SWT.DEFAULT, SWT.DEFAULT);
             dField.getLayoutControl().dispose();
             rowSize = initialSize.y + ITabbedPropertyConstants.VSPACE;
             estimateInitialized = true;
@@ -218,20 +221,20 @@ public class TextController extends AbstractElementPropertySectionController {
      * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void refresh(IElementParameter param, boolean checkErrorsWhenViewRefreshed) {
-        String paramName = param.getName();
-        Text labelText = (Text) hashCurControls.get(paramName);
+    public void refresh(final IElementParameter param, final boolean checkErrorsWhenViewRefreshed) {
+        final String paramName = param.getName();
+        final Text labelText = (Text) hashCurControls.get(paramName);
         if (labelText == null || labelText.isDisposed()) {
             return;
         }
 
-        Object value = param.getValue();
+        final Object value = param.getValue();
         boolean valueChanged = false;
         if (value == null) {
             labelText.setText(""); //$NON-NLS-1$
@@ -265,11 +268,11 @@ public class TextController extends AbstractElementPropertySectionController {
      * @param labelText
      * @param value
      */
-    private void checkTextError(IElementParameter param, Text labelText, Object value) {
+    private void checkTextError(final IElementParameter param, final Text labelText, final Object value) {
         // Only for job settings View.
         // job settings extra (feature 2710)
         if (param.getCategory() == EComponentCategory.STATSANDLOGS || param.getCategory() == EComponentCategory.EXTRA) {
-            Color red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+            final Color red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
             /*
              * Need dipose the system color or not? later, check it again.
              */
@@ -277,9 +280,9 @@ public class TextController extends AbstractElementPropertySectionController {
             // Color white = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
             if ((value instanceof String) && param.isRequired()) {
 
-                String str = (String) value;
+                final String str = (String) value;
 
-                String removedQuotesStr = TalendTextUtils.removeQuotes(str);
+                final String removedQuotesStr = TalendTextUtils.removeQuotes(str);
 
                 if (str == null || removedQuotesStr.length() == 0 || str.length() == 0) {
                     setTextErrorInfo(labelText, red);
@@ -297,7 +300,7 @@ public class TextController extends AbstractElementPropertySectionController {
      * @param labelText
      * @param red
      */
-    private void setTextErrorInfo(Text labelText, Color red) {
+    private void setTextErrorInfo(final Text labelText, final Color red) {
         labelText.setBackground(red);
         labelText.setToolTipText(Messages.getString("TextController.valueInvalid")); //$NON-NLS-1$
     }
