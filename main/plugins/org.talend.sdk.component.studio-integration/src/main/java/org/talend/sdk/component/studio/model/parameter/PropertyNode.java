@@ -32,7 +32,7 @@ import org.talend.core.model.process.EParameterFieldType;
 
 public class PropertyNode {
 	
-	private static final String CONFIG_ROOT_PREFIX = "connection";
+	private static final String CONFIG_ROOT_PREFIX = "configuration";
 
     static final String CONNECTION_BUTTON = ".testConnection";
 
