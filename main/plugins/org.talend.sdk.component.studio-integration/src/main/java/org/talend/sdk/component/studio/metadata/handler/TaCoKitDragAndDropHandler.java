@@ -68,43 +68,54 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
         return false;
     }
 
+    /**
+     * Retrieves persisted value (value stored in repository) by {@code repositoryKey}
+     * 
+     * @param connection object, which stores persisted values
+     * @param repositoryKey repository value key
+     * @param table component schema value
+     * @param targetComponent name of a target component
+     * @return persisted value
+     */
     @Override
-    public Object getComponentValue(final Connection connection, final String value, final IMetadataTable table,
+    public Object getComponentValue(final Connection connection, final String repositoryKey, final IMetadataTable table,
             final String targetComponent) {
         try {
             if (connection == null) {
                 return null;
             }
-            if (TaCoKitUtil.isEmpty(value)) {
+            if (TaCoKitUtil.isEmpty(repositoryKey)) {
                 return null;
             }
-            TaCoKitConfigurationModel model = new TaCoKitConfigurationModel(connection);
-            ValueModel valueModel = model.getValue(value);
-            if (valueModel != null) {
-                Object result = valueModel.getValue();
-                if (result == null) {
-                    return null;
-                } else {
-                    String type = null;
-                    try {
-                        List<SimplePropertyDefinition> properties =
-                                valueModel.getConfigurationModel().getConfigTypeNode().getProperties();
-                        if (properties != null) {
-                            for (SimplePropertyDefinition property : properties) {
-                                if (value.equals(property.getPath())) {
-                                    type = property.getType();
-                                    break;
+            final TaCoKitConfigurationModel model = new TaCoKitConfigurationModel(connection);
+            for (final String key : repositoryKey.split("\\|")) {
+                ValueModel valueModel = model.getValue(key);
+                if (valueModel != null) {
+                    Object result = valueModel.getValue();
+                    if (result == null) {
+                        return null;
+                    } else {
+                        String type = null;
+                        try {
+                            List<SimplePropertyDefinition> properties =
+                                    valueModel.getConfigurationModel().getConfigTypeNode().getProperties();
+                            if (properties != null) {
+                                for (SimplePropertyDefinition property : properties) {
+                                    if (key.equals(property.getPath())) {
+                                        type = property.getType();
+                                        break;
+                                    }
                                 }
                             }
+                        } catch (Exception e) {
+                            ExceptionHandler.process(e);
                         }
-                    } catch (Exception e) {
-                        ExceptionHandler.process(e);
-                    }
-                    if (TaCoKitConst.TYPE_STRING.equalsIgnoreCase(type)) {
-                        return RepositoryToComponentProperty.addQuotesIfNecessary(connection,
-                                String.class.cast(result));
-                    } else {
-                        return valueModel.getValue();
+                        if (TaCoKitConst.TYPE_STRING.equalsIgnoreCase(type)) {
+                            return RepositoryToComponentProperty.addQuotesIfNecessary(connection,
+                                    String.class.cast(result));
+                        } else {
+                            return valueModel.getValue();
+                        }
                     }
                 }
             }
