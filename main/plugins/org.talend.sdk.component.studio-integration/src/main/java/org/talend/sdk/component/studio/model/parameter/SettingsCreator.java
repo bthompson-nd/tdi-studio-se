@@ -444,7 +444,7 @@ public class SettingsCreator implements PropertyVisitor {
         parameter.setDisplayName(node.getProperty().getDisplayName());
         parameter.setFieldType(node.getFieldType());
         parameter.setName(node.getProperty().getPath());
-        parameter.setRepositoryValue(node.getProperty().getPath());
+        node.getRepositoryKeys().ifPresent(repositoryKey -> parameter.setRepositoryValue(repositoryKey));
         parameter.setNumRow(node.getLayout(form).getPosition());
         parameter.setShow(true);
         parameter.setValue(node.getProperty().getDefaultValue());
