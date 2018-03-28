@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.talend.core.model.process.IElement;
 
@@ -85,14 +86,15 @@ public class TableElementParameter extends ValueChangedParameter {
      *         If it is not from repository, then returns incoming value unchanged
      */
     private List<Map<String, Object>> fromRepository(List<Map<String, Object>> table) {
-        if (!isRepositoryValue(table)) {
+        final Optional<String> repositoryKey = getRepositoryKey(table);
+        if (!repositoryKey.isPresent()) {
             return table;
         }
         final List<Map<String, Object>> converted = new ArrayList<>(table.size());
         for (final Map<String, Object> row : table) {
             final Map<String, Object> convertedRow = new HashMap<>();
             for (final Map.Entry<String, Object> cell : row.entrySet()) {
-                final String newKey = cell.getKey().replace(getRepositoryValue(), getName());
+                final String newKey = cell.getKey().replace(repositoryKey.get(), getName());
                 convertedRow.put(newKey, cell.getValue());
             }
             converted.add(convertedRow);
@@ -101,22 +103,24 @@ public class TableElementParameter extends ValueChangedParameter {
     }
     
     /**
-     * Checks whether {@code value} is retrieved from repository
+     * Returns repository key, if it was used in table value, or Optional.empty() if it was not user
      * 
-     * @param value table value to be checked
-     * @return true, if it is from repository
+     * @param tableValue table value
+     * @return repository key
      */
-    private boolean isRepositoryValue(List<Map<String, Object>> value) {
-        if (value.isEmpty()) {
-            return false;
+    private Optional<String> getRepositoryKey(List<Map<String, Object>> tableValue) {
+        if (tableValue.isEmpty()) {
+            return Optional.empty();
         }
-        final Map<String, Object> row = value.get(0);
-        for (final String key : row.keySet()) {
-            if (key.startsWith(getRepositoryValue())) {
-                return true;
+        final Map<String, Object> row = tableValue.get(0);
+        for (final String repositoryKey : getRepositoryValue().split("\\|")) {
+            for (final String cellKey : row.keySet()) {
+                if (cellKey.startsWith(repositoryKey)) {
+                    return Optional.of(repositoryKey);
+                }
             }
         }
-        return false;
+        return Optional.empty();
     }
 
 }
