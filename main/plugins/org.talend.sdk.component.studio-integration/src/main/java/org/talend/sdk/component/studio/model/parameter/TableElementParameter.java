@@ -65,7 +65,7 @@ public class TableElementParameter extends ValueChangedParameter {
     @Override
     public void setValue(final Object newValue) {
         if (newValue == null || newValue instanceof String) {
-        	List<Map<String, Object>> tableValue = ValueConverter.toTable((String) newValue);
+            final List<Map<String, Object>> tableValue = ValueConverter.toTable((String) newValue);
             super.setValue(fromRepository(tableValue));
         } else if (newValue instanceof List) {
             super.setValue(newValue);
@@ -75,27 +75,29 @@ public class TableElementParameter extends ValueChangedParameter {
     }
     
     /**
-     * Checks whether incoming {@code table} retrieved from repository and converts it to correct parameter value by replacing repository key with 
-     * this parameter's name.
-     * Note this method doesn't validate incoming {@code value} correctness
+     * Checks whether incoming {@code table} retrieved from repository and converts
+     * it to correct parameter value by replacing repository key with this
+     * parameter's name. Note this method doesn't validate incoming {@code value}
+     * correctness
      * 
      * @param table table value from repository
-     * @return converted table value, if incoming value retrieved from repository; If it is not from repository, then returns incoming value unchanged
+     * @return converted table value, if incoming value retrieved from repository;
+     *         If it is not from repository, then returns incoming value unchanged
      */
     private List<Map<String, Object>> fromRepository(List<Map<String, Object>> table) {
-    	if (!isRepositoryValue(table)) {
-    		return table;
-    	}
-    	final List<Map<String, Object>> converted = new ArrayList<>(table.size());
-    	for (final Map<String, Object> row : table) {
-    		final Map<String, Object> convertedRow = new HashMap<>();
-    		for (final Map.Entry<String, Object> cell : row.entrySet()) {
-    			final String newKey = cell.getKey().replace(getRepositoryValue(), getName());
-    			convertedRow.put(newKey, cell.getValue());
-    		}
-    		converted.add(convertedRow);
-    	}
-    	return converted;
+        if (!isRepositoryValue(table)) {
+            return table;
+        }
+        final List<Map<String, Object>> converted = new ArrayList<>(table.size());
+        for (final Map<String, Object> row : table) {
+            final Map<String, Object> convertedRow = new HashMap<>();
+            for (final Map.Entry<String, Object> cell : row.entrySet()) {
+                final String newKey = cell.getKey().replace(getRepositoryValue(), getName());
+                convertedRow.put(newKey, cell.getValue());
+            }
+            converted.add(convertedRow);
+        }
+        return converted;
     }
     
     /**
@@ -105,16 +107,16 @@ public class TableElementParameter extends ValueChangedParameter {
      * @return true, if it is from repository
      */
     private boolean isRepositoryValue(List<Map<String, Object>> value) {
-    	if (value.isEmpty()) {
-    		return false;
-    	}
-    	final Map<String, Object> row = value.get(0);
-    	for (final String key : row.keySet()) {
-    		if (key.startsWith(getRepositoryValue())) {
-    			return true;
-    		}
-    	}
-    	return false;
+        if (value.isEmpty()) {
+            return false;
+        }
+        final Map<String, Object> row = value.get(0);
+        for (final String key : row.keySet()) {
+            if (key.startsWith(getRepositoryValue())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

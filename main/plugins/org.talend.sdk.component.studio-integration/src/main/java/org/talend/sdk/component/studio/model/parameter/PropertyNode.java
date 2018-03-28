@@ -258,30 +258,31 @@ public class PropertyNode {
      * 
      * @return repository key if available; otherwise Optional.empty()
      */
-	Optional<String> getRepositoryKeys() {
-		final String path = getId();
-		final String repositoryKeys = getConfigurationNodes().stream()
-				.map(PropertyNode::getId)
-				.map(p -> path.replace(p, CONFIG_ROOT_PREFIX))
-				.collect(Collectors.joining("|"));
-		return repositoryKeys.trim().isEmpty() ? Optional.empty() : Optional.of(repositoryKeys);
-	}
+    Optional<String> getRepositoryKeys() {
+        final String path = getId();
+        final String repositoryKeys = getConfigurationNodes().stream()
+                .map(PropertyNode::getId)
+                .map(p -> path.replace(p, CONFIG_ROOT_PREFIX))
+                .collect(Collectors.joining("|"));
+        return repositoryKeys.trim().isEmpty() ? Optional.empty() : Optional.of(repositoryKeys);
+    }
     
     /**
-     * Returns List of all Configuration Type nodes which are ancestors of current node or empty list if there are no such nodes
+     * Returns List of all Configuration Type nodes which are ancestors of current
+     * node or empty list if there are no such nodes
      * 
      * @return List of Configuration Type nodes
      */
     private List<PropertyNode> getConfigurationNodes() {
-    	final List<PropertyNode> configurationNodes = new ArrayList<>();
-    	PropertyNode current = this;
-    	while(!current.isRoot()) {
-    		current = current.getParent();
-    		if (current.getProperty().hasConfigurationType()) {
-    			configurationNodes.add(current);
-    		}
-    	}
-    	return configurationNodes;
+        final List<PropertyNode> configurationNodes = new ArrayList<>();
+        PropertyNode current = this;
+        while (!current.isRoot()) {
+            current = current.getParent();
+            if (current.getProperty().hasConfigurationType()) {
+                configurationNodes.add(current);
+            }
+        }
+        return configurationNodes;
     }
 
     private static class LayoutHeightVisitor implements PropertyVisitor {
