@@ -473,7 +473,6 @@ public class SettingsCreator implements PropertyVisitor {
             c.addLayout(form, layout);
         });
         final SettingsCreator creator = new SettingsCreator(new FakeElement("table"), category, redrawParameter);
-        // TODO maybe this::visit?
         columns.forEach(creator::visit);
         return creator.getSettings();
     }
@@ -494,10 +493,8 @@ public class SettingsCreator implements PropertyVisitor {
         final ValidationLabel label = new ValidationLabel(element);
         label.setCategory(category);
         label.setName(node.getProperty().getPath() + PropertyNode.VALIDATION);
-        // TODO remove or modify it
-        label.setRepositoryValue(node.getProperty().getPath() + PropertyNode.VALIDATION);
         label.setSerialized(false);
-        // it shown on the next row by default, but may be changed
+        // it is shown on the next row by default, but may be changed
         label.setNumRow(node.getLayout(form).getPosition() + 1);
         settings.put(label.getName(), label);
 
