@@ -147,8 +147,10 @@ imports="
           		     	if(uploadStream_<%=cid%>!=null){
       		         			uploadStream_<%=cid%>.close();
           		     	}
+          		     	buffer_<%=cid%> = new byte[partSizeInBytes_<%=cid%>];
           		     	sourceStream_<%=cid%>.read(buffer_<%=cid%>,1,partSizeInBytes_<%=cid%>-1);
           		     	buffer_<%=cid%>[0] = TestAvailable_<%=cid%>[0];
+          		     	TestAvailable_<%=cid%> = new byte[1];
           		     	curPartSize_<%=cid%> = streamUtil_<%=cid%>.getLength(buffer_<%=cid%>);
           		     	uploadStream_<%=cid%> = new java.io.ByteArrayInputStream(buffer_<%=cid%>);
         				}
